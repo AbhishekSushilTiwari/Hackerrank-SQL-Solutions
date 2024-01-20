@@ -1,0 +1,11 @@
+select hacker_id, name, no_of_challenges
+from (select hacker_id, name, no_of_challenges, count(no_of_challenges) over (partition by no_of_challenges order by no_of_challenges desc) as cnt,
+dense_rank() over (order by no_of_challenges desc) as dr
+from (select h.hacker_id, h.name, count(c.challenge_id) as no_of_challenges
+from hackers h
+join challenges c
+on h.hacker_id = c.hacker_id
+group by h.hacker_id, h.name
+order by count(c.challenge_id) desc, h.hacker_id) i) j
+where (dr>1 and cnt=1)
+      or (dr=1);
