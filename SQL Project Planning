@@ -1,0 +1,15 @@
+select i.start_date, j.end_date 
+from
+(
+    select start_date, row_number() over(order by start_date) as rn
+    from projects
+    where start_date not in (select end_date from projects)
+) i
+join
+(
+    select end_date, row_number() over(order by end_date) as rn
+    from projects
+    where end_date not in (select start_date from projects)
+) j
+on i.rn = j.rn
+order by (j.end_date - i.start_date), i.start_date
